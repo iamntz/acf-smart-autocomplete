@@ -107,7 +107,8 @@ class acf_field_smart_autocomplete extends acf_field
 
   function create_field( $field )
   {
-    $values = get_option( "acf_smart_autocomplete_" . $field['namespace'] . $this->settings['namespace'] );
+    $option_name =
+    $values = $this->get_option( $field );
     if( !isset( $values ) || empty( $values ) ){
       $values = array();
     }
@@ -133,6 +134,16 @@ class acf_field_smart_autocomplete extends acf_field
 
   protected function clean_select_value( $value = '' ){
     return preg_replace("/[^\w]/ui", '_', $value );
+  }
+
+
+  protected function get_option_name( $field ){
+    return "acf_smart_autocomplete_" . $field['namespace'] . $this->settings['namespace'] ;
+  }
+
+
+  protected function get_option( $field ){
+    return (array) get_option( "acf_smart_autocomplete_" . $field['namespace'] . $this->settings['namespace'] );
   }
 
 
@@ -204,7 +215,7 @@ class acf_field_smart_autocomplete extends acf_field
 
   function update_value($value, $post_id, $field)
   {
-    $option_name = "acf_smart_autocomplete_" . $field['namespace'] . $this->settings['namespace'] ;
+    $option_name = $this->get_option_name( $field );
     $options = (array) get_option( $option_name );
 
     $delete_key = substr( $value, 0, 1 ) == '-';
@@ -275,16 +286,9 @@ class acf_field_smart_autocomplete extends acf_field
 
   function format_value_for_api($value, $post_id, $field)
   {
-    // defaults?
-    /*
-    $field = array_merge($this->defaults, $field);
-    */
 
-    // perhaps use $field['preview_size'] to alter the $value?
-
-
-    // Note: This function can be removed if not used
-    return $value;
+    $options = $this->get_option( $field );
+    return $options[$value];
   }
 
 
